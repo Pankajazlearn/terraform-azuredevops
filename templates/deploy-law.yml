@@ -25,7 +25,7 @@ jobs:
           displayName: terraform init
           inputs:
             provider: 'azurerm'
-            command: 'init'
+            command: 'terraform init'
             workingDirectory: '$(System.DefaultWorkingDirectory)/00_law/${{ parameters.environmentName }}'
             backendServiceArm: ${{ parameters.serviceConnection }}
             backendAzureRmResourceGroupName: '_rg-iac-${{ parameters.environmentName }}-we-01'
@@ -36,13 +36,13 @@ jobs:
           displayName: terraform plan
           inputs:
             provider: 'azurerm'
-            command: 'plan'
+            command: 'terraform plan'
             workingDirectory: '$(System.DefaultWorkingDirectory)/00_law/${{ parameters.environmentName }}'
             environmentServiceNameAzureRM:  ${{ parameters.serviceConnection }}
         - task: TerraformTaskV1@0
           displayName: terraform apply
           inputs:
             provider: 'azurerm'
-            command: 'apply'
+            command: 'terraform apply'
             workingDirectory: '$(System.DefaultWorkingDirectory)/00_law/${{ parameters.environmentName }}'
             environmentServiceNameAzureRM:  ${{ parameters.serviceConnection }}
