@@ -6,43 +6,56 @@ parameters:
 - name: backendAzureRmStorageAccountName
   type: string
 
-jobs:
-- deployment: deploy_law
-  displayName: 'deploy ${{ parameters.environmentName }} log analytics workspace'
-  pool:
-    vmImage: 'ubuntu-latest'
-  environment: ${{ parameters.environmentName }}
-  strategy:
-    runOnce:
-      deploy:
-        steps:
-        - checkout: self
-        - task: TerraformInstaller@0
-          displayName: install terraform
-          inputs:
-            terraformVersion: '0.14.0'
-        - task: TerraformTaskV1@0
-          displayName: terraform init
-          inputs:
-            provider: 'azurerm'
-            command: 'terraform init'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/00_law/${{ parameters.environmentName }}'
-            backendServiceArm: ${{ parameters.serviceConnection }}
-            backendAzureRmResourceGroupName: '_rg-iac-${{ parameters.environmentName }}-we-01'
-            backendAzureRmStorageAccountName: ${{ parameters.backendAzureRmStorageAccountName }}
-            backendAzureRmContainerName: 'tfstate'
-            backendAzureRmKey: 'law.tfstate'
-        - task: TerraformTaskV1@0
-          displayName: terraform plan
-          inputs:
-            provider: 'azurerm'
-            command: 'terraform plan'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/00_law/${{ parameters.environmentName }}'
-            environmentServiceNameAzureRM:  ${{ parameters.serviceConnection }}
-        - task: TerraformTaskV1@0
-          displayName: terraform apply
-          inputs:
-            provider: 'azurerm'
-            command: 'terraform apply'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/00_law/${{ parameters.environmentName }}'
-            environmentServiceNameAzureRM:  ${{ parameters.serviceConnection }}
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: Plan
+  displayName: 'Terraform Plan'
+  jobs:
+  - job: TerraformPlan
+    displayName: 'Terraform Plan'
+    steps:
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: 'latest'
+
+    - script: |
+        terraform --version
+        terraform init -backend-config="storage_account_name=$(storageAccountName)" -backend-config="container_name=$(containerName)" -backend-config="key=$(key)" -backend-config="access_key=$(accessKey)"
+        terraform plan -out=tfplan
+      displayName: 'Terraform Init and Plan'
+
+- stage: Deploy
+  displayName: 'Terraform Apply'
+  jobs:
+  - job: TerraformApply
+    displayName: 'Terraform Apply'
+    steps:
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: 'latest'
+
+    - script: |
+        terraform --version
+        terraform init -backend-config="storage_account_name=$(storageAccountName)" -backend-config="container_name=$(containerName)" -backend-config="key=$(key)" -backend-config="access_key=$(accessKey)"
+        terraform apply -auto-approve tfplan
+      displayName: 'Terraform Init and Apply'
+
+  jobs:
+  - deployment: deploy_law
+    displayName: 'deploy ${{ parameters.environmentName }} log analytics workspace'
+    pool:
+     vmImage: 'ubuntu-latest'
+     environment: ${{ parameters.environmentName }}
+     workingDirectory: '$(System.DefaultWorkingDirectory)/00_law/${{ parameters.environmentName }}'
+     backendServiceArm: ${{ parameters.serviceConnection }}
+     backendAzureRmResourceGroupName: '_rg-iac-${{ parameters.environmentName }}-we-01'
+     backendAzureRmStorageAccountName: ${{ parameters.backendAzureRmStorageAccountName }}
+     backendAzureRmContainerName: 'tfstate'
+     backendAzureRmKey: 'law.tfstate'
+     workingDirectory: '$(System.DefaultWorkingDirectory)/00_law/${{ parameters.environmentName }}'
+     environmentServiceNameAzureRM:  ${{ parameters.serviceConnection }}
