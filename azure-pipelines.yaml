@@ -7,8 +7,8 @@ trigger:
 # global variables
 variables:
   system.debug : true # Setting debug to true will add extra output to the logs which can be useful while troubleshooting
-  storageAccountNameDev: stodevwestiac01
-  storageAccountNameProd: stoprodwestiac01
+  storageAccountNameDev: devstore7121
+  storageAccountNameProd: prodstore7121
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -25,13 +25,13 @@ stages:
   
   - template: templates/deploy-vnet.yml
     parameters:
-      serviceConnection: 'azure-conn'
+      serviceConnection: 'k8sconnection'
       environmentName: 'dev'
       backendAzureRmStorageAccountName: '$(storageAccountNameDev)'
 
   - template: templates/deploy-acr.yml
     parameters:
-      serviceConnection: 'azure-conn'
+      serviceConnection: 'k8sconnection'
       environmentName: 'dev'
       backendAzureRmStorageAccountName: '$(storageAccountNameDev)'
 
@@ -41,7 +41,7 @@ stages:
   jobs:  
   - template: templates/deploy-aks.yml
     parameters:
-      serviceConnection: 'azure-conn'
+      serviceConnection: 'k8sconnection'
       environmentName: 'dev'
       backendAzureRmStorageAccountName: '$(storageAccountNameDev)'
 
@@ -51,19 +51,19 @@ stages:
   jobs:
   - template: templates/deploy-law.yml
     parameters:
-      serviceConnection: 'azure-conn'
+      serviceConnection: 'k8sconnection'
       environmentName: 'prod'
       backendAzureRmStorageAccountName: '$(storageAccountNameProd)'
   
   - template: templates/deploy-vnet.yml
     parameters:
-      serviceConnection: 'azure-conn'
+      serviceConnection: 'k8sconnection'
       environmentName: 'prod'
       backendAzureRmStorageAccountName: '$(storageAccountNameProd)'
 
   - template: templates/deploy-acr.yml
     parameters:
-      serviceConnection: 'azure-conn'
+      serviceConnection: 'k8sconnection'
       environmentName: 'prod'
       backendAzureRmStorageAccountName: '$(storageAccountNameProd)'
 
@@ -73,6 +73,6 @@ stages:
   jobs:    
   - template: templates/deploy-aks.yml
     parameters:
-      serviceConnection: 'azure-conn'
+      serviceConnection: 'k8sconnection'
       environmentName: 'prod'
       backendAzureRmStorageAccountName: '$(storageAccountNameProd)'
