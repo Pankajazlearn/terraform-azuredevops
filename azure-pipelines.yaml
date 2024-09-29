@@ -19,7 +19,7 @@ stages:
   jobs:
   - template: templates/deploy-law.yml
     parameters:
-      serviceConnection: 'azure-conn'
+      serviceConnection: 'k8sconnection'
       environmentName: 'dev'
       backendAzureRmStorageAccountName: '$(storageAccountNameDev)'
   
