@@ -1,11 +1,3 @@
-parameters:
-- name: environmentName
-  type: string
-- name: serviceConnection
-  type: string
-- name: backendAzureRmStorageAccountName
-  type: string
-
 trigger:
 - main
 
@@ -44,18 +36,3 @@ stages:
         terraform init -backend-config="storage_account_name=$(storageAccountName)" -backend-config="container_name=$(containerName)" -backend-config="key=$(key)" -backend-config="access_key=$(accessKey)"
         terraform apply -auto-approve tfplan
       displayName: 'Terraform Init and Apply'
-
-  jobs:
-  - deployment: deploy_law
-    displayName: 'deploy ${{ parameters.environmentName }} log analytics workspace'
-    pool:
-     vmImage: 'ubuntu-latest'
-     environment: ${{ parameters.environmentName }}
-     workingDirectory: '$(System.DefaultWorkingDirectory)/00_law/${{ parameters.environmentName }}'
-     backendServiceArm: ${{ parameters.serviceConnection }}
-     backendAzureRmResourceGroupName: '_rg-iac-${{ parameters.environmentName }}-we-01'
-     backendAzureRmStorageAccountName: ${{ parameters.backendAzureRmStorageAccountName }}
-     backendAzureRmContainerName: 'tfstate'
-     backendAzureRmKey: 'law.tfstate'
-     workingDirectory: '$(System.DefaultWorkingDirectory)/00_law/${{ parameters.environmentName }}'
-     environmentServiceNameAzureRM:  ${{ parameters.serviceConnection }}
