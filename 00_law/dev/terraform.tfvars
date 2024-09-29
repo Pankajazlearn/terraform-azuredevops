@@ -1,7 +1,7 @@
 # LAW
-law_rg_name                       = "_rg-law-d-we-001"
-law_rg_location                   = "West Europe"
-law_name                          = "law-d-we-001"
+law_rg_name                       = "_rg-law-dev"
+law_rg_location                   = "UKSOUTH"
+law_name                          = "law-dev"
 
 default_tags = {
   Project                         = "001"
